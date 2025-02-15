@@ -50,6 +50,29 @@ ApplicationWindow {
                        }
                    }
                }
-           }
+               // Lista carrito de compras
+                          ListView {
+                              id: listaCarrito
+                              width: 250
+                              height: 250
+                              model: carritoCompras
+                              delegate: Item {
+                                  width: 250
+                                  height: 40
+
+                                  Row {
+                                      spacing: 10
+                                      Text { text: nombre }
+                                      Text { text: "$" + precio }
+                                      Button {
+                                          text: "-"
+                                          onClicked: {
+                                              carritoCompras.remove(index)
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                      }
        }
 }
