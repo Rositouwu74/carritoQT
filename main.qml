@@ -22,7 +22,7 @@ ApplicationWindow {
     // Property para almacenar el total del carrito
     property real totalCarrito: 0
 
-    // Conexión para actualizar el total cada vez que cambie el carrito
+    // Conexión para actualizar el total cuando el carrito cambie
     Connections {
         target: carritoCompras
         onCountChanged: actualizarTotal()
@@ -31,9 +31,32 @@ ApplicationWindow {
     function actualizarTotal() {
         var total = 0;
         for (var i = 0; i < carritoCompras.count; i++) {
-            total += carritoCompras.get(i).precio;
+            total += carritoCompras.get(i).precio * carritoCompras.get(i).cantidad;
         }
         totalCarrito = total;
+    }
+
+    // Agregar producto al carrito sin repetirlo
+    function agregarAlCarrito(nombre, precio) {
+        for (var i = 0; i < carritoCompras.count; i++) {
+            if (carritoCompras.get(i).nombre === nombre) {
+                carritoCompras.setProperty(i, "cantidad", carritoCompras.get(i).cantidad + 1);
+                actualizarTotal();
+                return;
+            }
+        }
+        carritoCompras.append({ nombre: nombre, precio: precio, cantidad: 1 });
+        actualizarTotal();
+    }
+
+    // Eliminar producto del carrito, si cantidad > 1 solo reducirlo
+    function eliminarDelCarrito(index) {
+        if (carritoCompras.get(index).cantidad > 1) {
+            carritoCompras.setProperty(index, "cantidad", carritoCompras.get(index).cantidad - 1);
+        } else {
+            carritoCompras.remove(index);
+        }
+        actualizarTotal();
     }
 
     Rectangle {
@@ -117,7 +140,7 @@ ApplicationWindow {
                                             color: "#4CAF50"
                                             radius: 10
                                         }
-                                        onClicked: carritoCompras.append({ nombre: nombre, precio: precio })
+                                        onClicked: agregarAlCarrito(nombre, precio)
                                     }
                                 }
                             }
@@ -178,7 +201,8 @@ ApplicationWindow {
                                     spacing: 10
                                     anchors.centerIn: parent
 
-                                    Text { text: nombre; font.bold: true }
+                                    // Muestra el producto con su cantidad
+                                    Text { text: nombre + " (" + cantidad + ")"; font.bold: true }
                                     Text { text: "$" + precio }
 
                                     Button {
@@ -187,7 +211,7 @@ ApplicationWindow {
                                             color: "#F44336"
                                             radius: 10
                                         }
-                                        onClicked: carritoCompras.remove(index)
+                                        onClicked: eliminarDelCarrito(index)
                                     }
                                 }
                             }
